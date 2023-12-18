@@ -1,4 +1,49 @@
 main {
   max-width: 800px;
   padding: 60px;
+  font-size: 12px;
 }
+
+input {
+  margin-right: 10px;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: aliceblue;
+  padding: 20px;
+  border: 1px solid blue
+}
+
+.modal form {
+  display: flex;
+}
+
+.modal input,
+.modal select {
+  margin-bottom: 10px;
+  padding: 8px;
+}
+
+.modal button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+
