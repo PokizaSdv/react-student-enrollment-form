@@ -8,17 +8,23 @@ class App extends React.Component {
         super();
         this.state = {
             students: [],
-
             firstName: "",
             lastName: "",
             email: "",
             classEnrolled: "",
             showEditingModal: false,
-            editStudentId: "",
-            editFirstName: "",
-            editLastName: "",
-            editEmail: "",
-            editClassEnrolled: ""
+            firstNameError: false,
+            lastNameError: false,
+            emailError: false,
+            classEnrolledError: false,
+            inputError: "",
+            editedStudentId: "",
+            editedFirstName: "",
+            editedLastName: "",
+            editedEmail: "",
+            editedClassEnrolled: "",
+            showConfirmingModal: false,
+            deletingStudenId: ""
         };
     }
 
@@ -29,6 +35,18 @@ class App extends React.Component {
 
         if (!firstName || !lastName || !email || !classEnrolled) {
             return "Please fill out all fields!";
+        }
+
+        if (
+            firstName.length <= 1 ||
+            lastName.length <= 1 ||
+            email.length <= 1 ||
+            classEnrolled.length <= 1
+        ) {
+            this.setState({
+                inputError: true
+            });
+            return;
         }
 
         const newStudent = {
@@ -46,121 +64,194 @@ class App extends React.Component {
                 firstName: "",
                 lastName: "",
                 email: "",
-                classEnrolled: "",
-                showEditModal: false
+                classEnrolled: ""
             };
         });
     };
 
     handleFirstNameOnChange = (e) => {
         const { value } = e.target;
-
         this.setState({
-            firstNameValue: value
+            firstName: value
         });
+
+        if (value.length <= 1) {
+            this.setState({
+                firstNameError: true
+            });
+        } else {
+            this.setState({
+                firstNameError: false
+            });
+        }
     };
 
     handleLastNameOnChange = (e) => {
         const { value } = e.target;
-
         this.setState({
-            lastNameValue: value
+            lastName: value
         });
+        if (value.length <= 1) {
+            this.setState({
+                lastNameError: true
+            });
+        } else {
+            this.setState({
+                lastNameError: false
+            });
+        }
     };
 
     handleEmailAddressOnChange = (e) => {
         const { value } = e.target;
 
         this.setState({
-            emailAddressValue: value
+            email: value
         });
 
+        if (value.length <= 1) {
+            this.setState({
+                emailError: true
+            });
+        } else {
+            this.setState({
+                emailError: false
+            });
+        }
     };
 
     handleClassEnrolledOnChange = (e) => {
         const { value } = e.target;
-
         this.setState({
-            classEnrolledValue: value
+            classEnrolled: value
         });
 
+        if (value.length <= 1) {
+            this.setState({
+                classEnrolledError: true
+            });
+        } else {
+            this.setState({
+                classEnrolledError: false
+            });
+        }
     };
-
-    handleFirstNameEdit = (e) => {
-      this.setState({
-          firstNameEditValue: e.target.value
-      });
-  };
-
-  handleLastNameEdit = (e) => {
-      this.setState({
-          lastNameEditValue: e.target.value
-      });
-  };
-
-  handleEmailAddressEdit = (e) => {
-      this.setState({
-          emailAddressEditValue: e.target.value
-      });
-  };
-
-  handleClassEnrolledEdit = (e) => {
-      this.setState({
-          classEnrolledEditValue: e.target.value
-      });
-  };
 
     editingStudent = (studentId) => {
         for (const student of this.state.students) {
             if (student.id === studentId) {
                 this.setState({
                     showEditingModal: true,
-                    editStudentId: studentId,
-                    editfirstName: student.firstName,
-                    editlastName: student.lastName,
-                    editemail: student.email,
-                    editclassEnrolled: student.classEnrolled
+                    editedStudentId: studentId,
+                    editedFirstName: student.firstName,
+                    editedLastName: student.lastName,
+                    editedEmail: student.email,
+                    editedClassEnrolled: student.classEnrolled
                 });
             }
         }
     };
 
-    deletingStudent = (studentId) => {
+    handleFirstNameEdit = (e) => {
+        this.setState({
+            editedFirstName: e.target.value
+        });
+    };
+
+    handleLastNameEdit = (e) => {
+        this.setState({
+            editedLastName: e.target.value
+        });
+    };
+
+    handleEmailAddressEdit = (e) => {
+        this.setState({
+            editedEmail: e.target.value
+        });
+    };
+
+    handleClassEnrolledEdit = (e) => {
+        this.setState({
+            editedClassEnrolled: e.target.value
+        });
+    };
+
+    submitEdit = () => {
         this.setState((prevState) => {
-            const leftStudents = prevState.students.map((student) => {
-                return student.id !== studentId;
+            const updatedStudents = prevState.students.map((student) => {
+                if (student.id === this.state.editedStudentId) {
+                    const copy = {
+                        ...student,
+                        firstName: this.state.editedFirstName,
+                        lastName: this.state.editedLastName,
+                        email: this.state.editedEmail,
+                        classEnrolled: this.state.editedClassEnrolled
+                    };
+                    return copy;
+                }
+                return student;
             });
             return {
-                students: leftStudents
+                students: updatedStudents,
+                showEditingModal: false
             };
         });
     };
 
+    deletingStudent = (studentId) => {
+      this.setState((prevState) => {
+          const leftStudents = prevState.students.filter((student) => student.id !== studentId);
+          return {
+              students: leftStudents,
+              showConfirmingModal: false
+          };
+      });
+  };
+  
+  
     render() {
         return (
             <main>
-                <form onSubmit={this.addStudent}>
+                <form className="form" onSubmit={this.addStudent}>
+                    <h1>Student Enrollment Form</h1>
+                    
+                    <div className="form-control">
                     <input
                         type="text"
                         placeholder="First Name"
                         value={this.state.firstName}
                         onChange={this.handleFirstNameOnChange}
                     ></input>
+                    {this.state.firstNameError && (
+                        <span className="error-span">Invalid First Name</span>
+                    )}
+                    </div>
 
+                    <div className="form-control">
                     <input
                         type="text"
                         placeholder="Last Name"
                         value={this.state.lastName}
                         onChange={this.handleLastNameOnChange}
                     ></input>
+                    {this.state.lastNameError && (
+                        <span className="error-span">Invalid Last Name</span>
+                    )}
+                    </div>
 
+                    <div className="form-control">
                     <input
                         type="text"
                         placeholder="Email"
                         value={this.state.email}
                         onChange={this.handleEmailAddressOnChange}
                     ></input>
+                    {this.state.emailError && (
+                        <span className="error-span">Invalid Email</span>
+                    )}
+                    </div>
 
+                    <div className="form-control">
                     <select
                         value={this.state.classEnrolled}
                         onChange={this.handleClassEnrolledOnChange}
@@ -171,8 +262,11 @@ class App extends React.Component {
                         <option value="Journalism">Journalism</option>
                         <option value="Literature">Literature</option>
                     </select>
-
-                    <button type="submit">Add student</button>
+                    {this.state.classEnrolledError && (
+                        <span className="error-span">Invalid Class</span>
+                    )}
+                    </div>
+                    <button className="submit" type="submit">Add student</button>
                 </form>
 
                 <table>
@@ -192,8 +286,9 @@ class App extends React.Component {
                                 <td>{student.lastName}</td>
                                 <td>{student.email}</td>
                                 <td>{student.classEnrolled}</td>
-                                <td>
+                                <td id="actions">
                                     <button
+                                        className="edit-btn"
                                         onClick={() =>
                                             this.editingStudent(student.id)
                                         }
@@ -201,9 +296,14 @@ class App extends React.Component {
                                         Edit
                                     </button>
                                     <button
-                                        onClick={() =>
-                                            this.deletingStudent(student.id)
-                                        }
+                                        className="delete-btn"
+                                        onClick={() =>{
+                                          this.setState({
+                                            showConfirmingModal: true,
+                                            deletingStudenId: student.id
+            
+                                          })
+                                        }}
                                     >
                                         Delete
                                     </button>
@@ -213,30 +313,30 @@ class App extends React.Component {
                     </tbody>
                 </table>
                 {this.state.showEditingModal && (
-                    <div className="modal">
+                    <div className="editing-modal">
                         <form onSubmit={this.editingStudent}>
                             <input
                                 type="text"
                                 placeholder="First Name"
-                                value={this.state.editFirstName}
+                                value={this.state.editedFirstName}
                                 onChange={this.handleFirstNameEdit}
                             />
                             <input
                                 type="text"
                                 placeholder="Last Name"
-                                value={this.state.editLastName}
+                                value={this.state.editedLastName}
                                 onChange={this.handleLastNameEdit}
                             />
                             <input
                                 type="email"
                                 name="email"
                                 placeholder="Email"
-                                value={this.state.editEmail}
+                                value={this.state.editedEmail}
                                 onChange={this.handleEmailAddressEdit}
                             />
                             <select
                                 name="classEnrolled"
-                                value={this.state.editClassEnrolled}
+                                value={this.state.editedClassEnrolled}
                                 onChange={this.handleClassEnrolledEdit}
                             >
                                 <option value="">Select Class</option>
@@ -245,8 +345,44 @@ class App extends React.Component {
                                 <option value="Journalism">Journalism</option>
                                 <option value="Literature">Literature</option>
                             </select>
-                            <button type="submit">Update Student</button>
+                            <button className="submit-edit" type="submit" onClick={this.submitEdit}>
+                                Update Student
+                            </button>
+                            <button className="cancel-edit"
+                            onClick={() => {
+                                this.setState({
+                                    showEditingModal: false,
+                                    
+                                });
+                            }}
+                        >
+                            Cancel
+                        </button>
                         </form>
+                    </div>
+                )}
+
+                {this.state.showConfirmingModal && (
+                    <div className="deleting-modal">
+                        <h2>Are you sure to delete this student?</h2>
+                        <button onClick={() => {this.deletingStudent(this.state.deletingStudenId);
+                        this.setState({
+                          showConfirmingModal: false,
+                          deletingStudenId: ""
+                        })}
+                        }>Yes, Delete!</button>
+
+
+                        <button
+                            onClick={() => {
+                                this.setState({
+                                    showConfirmingModal: false,
+                                    
+                                });
+                            }}
+                        >
+                            Cancel
+                        </button>
                     </div>
                 )}
             </main>
